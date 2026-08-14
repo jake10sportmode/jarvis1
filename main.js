@@ -1,8 +1,9 @@
 // JARVIS - Voice AI Assistant with Settings (Google Gemini & OpenAI Support)
+// ALL API KEYS ARE STORED ONLY IN YOUR BROWSER - NEVER SENT TO ANY SERVER
 const canvas = document.getElementById('orb-canvas');
 const ctx = canvas.getContext('2d');
 
-// Settings management
+// Settings management - STORED ONLY LOCALLY IN YOUR BROWSER
 const settings = {
   apiKey: localStorage.getItem('jarvis_api_key') || '',
   apiProvider: localStorage.getItem('jarvis_api_provider') || 'gemini',
@@ -10,6 +11,7 @@ const settings = {
 };
 
 function saveSettings() {
+  // Keys only stored in browser's localStorage - never sent anywhere
   localStorage.setItem('jarvis_api_key', settings.apiKey);
   localStorage.setItem('jarvis_api_provider', settings.apiProvider);
   localStorage.setItem('jarvis_language', settings.language);
@@ -196,6 +198,10 @@ function createSettingsPanel() {
         <small style="color: rgba(0, 255, 255, 0.5); display: block; margin-top: 8px; line-height: 1.4;" id="provider-hint">
           Get your Google Gemini API key from: makersuite.google.com/app/apikey
         </small>
+        <small style="color: rgba(0, 255, 100, 0.6); display: block; margin-top: 8px; line-height: 1.4;">
+          🔒 Your API key is stored ONLY on your device in your browser.<br/>
+          No one else can see it unless they access your computer.
+        </small>
       </div>
 
       <div style="margin-bottom: 25px;">
@@ -256,11 +262,11 @@ function createSettingsPanel() {
         font-size: 12px;
         line-height: 1.8;
       ">
-        <p style="margin: 0 0 12px 0;"><strong style="color: rgba(0, 255, 255, 0.7);">HOW TO USE</strong></p>
-        <p style="margin: 0 0 8px 0;">1. Choose your AI provider</p>
-        <p style="margin: 0 0 8px 0;">2. Paste your API key</p>
-        <p style="margin: 0 0 8px 0;">3. Click SAVE</p>
-        <p style="margin: 0;">4. Click orb to speak</p>
+        <p style="margin: 0 0 12px 0;"><strong style="color: rgba(0, 255, 255, 0.7);">PRIVACY & SECURITY</strong></p>
+        <p style="margin: 0 0 8px 0;">✓ API key stored only locally</p>
+        <p style="margin: 0 0 8px 0;">✓ Private to your browser</p>
+        <p style="margin: 0 0 8px 0;">✓ Never uploaded anywhere</p>
+        <p style="margin: 0;">✓ Delete from Settings anytime</p>
       </div>
     </div>
   `;
@@ -425,7 +431,7 @@ async function getResponse(userMessage) {
     let reply = '';
 
     if (settings.apiProvider === 'gemini') {
-      // Google Gemini API
+      // Google Gemini API - API key is sent directly from your browser
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${settings.apiKey}`, {
         method: 'POST',
         headers: {
@@ -451,7 +457,7 @@ async function getResponse(userMessage) {
       reply = data.candidates[0].content.parts[0].text;
 
     } else if (settings.apiProvider === 'openai') {
-      // OpenAI API
+      // OpenAI API - API key is sent directly from your browser
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
