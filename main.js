@@ -137,104 +137,111 @@ const btnRestart = document.getElementById('btn-restart');
 const btnFixSelf = document.getElementById('btn-fix-self');
 
 // Create settings panel (dynamic)
+let settingsPanel = null;
+
 function createSettingsPanel() {
   const panel = document.createElement('div');
   panel.id = 'settings-panel';
   panel.style.cssText = `
     position: fixed;
     top: 0;
-    right: -400px;
+    right: -450px;
     width: 400px;
+    max-width: 100vw;
     height: 100vh;
-    background: rgba(10, 15, 30, 0.95);
-    border-left: 1px solid rgba(0, 255, 255, 0.2);
+    background: rgba(10, 15, 30, 0.99);
+    border-left: 2px solid rgba(0, 255, 255, 0.3);
     z-index: 1000;
     transition: right 0.3s ease;
     overflow-y: auto;
-    padding: 20px;
+    padding: 30px;
     box-sizing: border-box;
   `;
 
   panel.innerHTML = `
     <div style="margin-bottom: 20px;">
-      <h2 style="color: rgba(0, 255, 255, 0.8); margin: 0 0 20px 0; font-size: 18px; letter-spacing: 2px;">⚙️ SETTINGS</h2>
+      <h2 style="color: rgba(0, 255, 255, 0.9); margin: 0 0 30px 0; font-size: 20px; letter-spacing: 3px;">⚙️ SETTINGS</h2>
       
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; color: rgba(0, 255, 255, 0.6); margin-bottom: 8px; font-size: 12px;">API KEY</label>
-        <input type="password" id="api-key-input" placeholder="Enter your API key..." style="
+      <div style="margin-bottom: 25px;">
+        <label style="display: block; color: rgba(0, 255, 255, 0.7); margin-bottom: 10px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">API KEY</label>
+        <input type="password" id="api-key-input" placeholder="Enter your OpenAI API key..." style="
           width: 100%;
-          padding: 10px;
-          background: rgba(0, 255, 255, 0.05);
-          border: 1px solid rgba(0, 255, 255, 0.2);
-          border-radius: 6px;
-          color: rgba(0, 255, 255, 0.9);
-          font-size: 13px;
+          padding: 12px;
+          background: rgba(0, 255, 255, 0.08);
+          border: 1px solid rgba(0, 255, 255, 0.25);
+          border-radius: 8px;
+          color: rgba(0, 255, 255, 0.95);
+          font-size: 14px;
           box-sizing: border-box;
+          font-family: monospace;
         " value="${settings.apiKey}">
-        <small style="color: rgba(0, 255, 255, 0.4); display: block; margin-top: 6px;">
-          Enter your OpenAI or other AI service API key to enable responses
+        <small style="color: rgba(0, 255, 255, 0.5); display: block; margin-top: 8px; line-height: 1.4;">
+          Get your API key from openai.com<br/>This enables JARVIS to understand and respond to your voice.
         </small>
       </div>
 
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; color: rgba(0, 255, 255, 0.6); margin-bottom: 8px; font-size: 12px;">LANGUAGE</label>
+      <div style="margin-bottom: 25px;">
+        <label style="display: block; color: rgba(0, 255, 255, 0.7); margin-bottom: 10px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">LANGUAGE</label>
         <select id="language-select" style="
           width: 100%;
-          padding: 10px;
-          background: rgba(0, 255, 255, 0.05);
-          border: 1px solid rgba(0, 255, 255, 0.2);
-          border-radius: 6px;
-          color: rgba(0, 255, 255, 0.9);
-          font-size: 13px;
+          padding: 12px;
+          background: rgba(0, 255, 255, 0.08);
+          border: 1px solid rgba(0, 255, 255, 0.25);
+          border-radius: 8px;
+          color: rgba(0, 255, 255, 0.95);
+          font-size: 14px;
           box-sizing: border-box;
+          cursor: pointer;
         ">
-          <option value="en-US" ${settings.language === 'en-US' ? 'selected' : ''}>English (US)</option>
-          <option value="en-GB" ${settings.language === 'en-GB' ? 'selected' : ''}>English (UK)</option>
-          <option value="es-ES" ${settings.language === 'es-ES' ? 'selected' : ''}>Spanish</option>
-          <option value="fr-FR" ${settings.language === 'fr-FR' ? 'selected' : ''}>French</option>
-          <option value="de-DE" ${settings.language === 'de-DE' ? 'selected' : ''}>German</option>
-          <option value="it-IT" ${settings.language === 'it-IT' ? 'selected' : ''}>Italian</option>
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="es-ES">Spanish</option>
+          <option value="fr-FR">French</option>
+          <option value="de-DE">German</option>
+          <option value="it-IT">Italian</option>
         </select>
       </div>
 
       <button id="save-settings" style="
         width: 100%;
-        padding: 12px;
-        background: rgba(0, 255, 100, 0.2);
-        border: 1px solid rgba(0, 255, 100, 0.4);
-        border-radius: 6px;
-        color: rgba(0, 255, 100, 0.8);
-        font-size: 12px;
+        padding: 14px;
+        background: rgba(0, 255, 100, 0.25);
+        border: 1px solid rgba(0, 255, 100, 0.5);
+        border-radius: 8px;
+        color: rgba(0, 255, 100, 0.9);
+        font-size: 13px;
         cursor: pointer;
         font-weight: bold;
-        letter-spacing: 1px;
-        transition: all 0.3s;
-      ">SAVE SETTINGS</button>
+        letter-spacing: 1.5px;
+        transition: all 0.2s;
+      ">✓ SAVE SETTINGS</button>
 
       <button id="close-settings" style="
         width: 100%;
-        padding: 10px;
-        margin-top: 12px;
+        padding: 12px;
+        margin-top: 10px;
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        color: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.6);
         font-size: 12px;
         cursor: pointer;
-        transition: all 0.3s;
-      ">Close</button>
+        transition: all 0.2s;
+        letter-spacing: 1px;
+      ">CLOSE</button>
 
       <div style="
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 11px;
-        line-height: 1.6;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        line-height: 1.8;
       ">
-        <p style="margin: 0 0 10px 0;"><strong>About JARVIS</strong></p>
-        <p style="margin: 0;">A voice-controlled AI assistant. Speak to interact.</p>
-        <p style="margin: 10px 0 0 0;">API Key required for responses.</p>
+        <p style="margin: 0 0 12px 0;"><strong style="color: rgba(0, 255, 255, 0.7);">HOW IT WORKS</strong></p>
+        <p style="margin: 0 0 8px 0;">1. Enter your OpenAI API key</p>
+        <p style="margin: 0 0 8px 0;">2. Click the glowing orb to speak</p>
+        <p style="margin: 0;">3. JARVIS will respond to you</p>
       </div>
     </div>
   `;
@@ -246,29 +253,35 @@ function createSettingsPanel() {
   const saveBtn = document.getElementById('save-settings');
   const closeBtn = document.getElementById('close-settings');
 
+  // Set language select to saved value
+  languageSelect.value = settings.language;
+
   saveBtn.addEventListener('click', () => {
     settings.apiKey = apiKeyInput.value;
     settings.language = languageSelect.value;
     saveSettings();
     updateStatus('Settings saved ✓');
-    setTimeout(() => closePanel(), 800);
+    setTimeout(() => closeSettingsPanel(), 800);
   });
 
-  closeBtn.addEventListener('click', closePanel);
+  closeBtn.addEventListener('click', closeSettingsPanel);
 
-  function closePanel() {
-    panel.style.right = '-400px';
+  function closeSettingsPanel() {
+    panel.style.right = '-450px';
     menuDropdown.style.display = 'none';
   }
 
-  function openPanel() {
+  function openSettingsPanel() {
     panel.style.right = '0px';
   }
 
-  return { openPanel, closePanel };
+  return { openSettingsPanel, closeSettingsPanel };
 }
 
-const settingsPanel = createSettingsPanel();
+// Initialize settings panel after DOM is ready
+setTimeout(() => {
+  settingsPanel = createSettingsPanel();
+}, 100);
 
 function updateStatus(text) {
   statusText.textContent = text;
@@ -292,8 +305,12 @@ btnMenu.addEventListener('click', () => {
   menuDropdown.style.display = menuDropdown.style.display === 'none' ? 'block' : 'none';
 });
 
-btnSettings.addEventListener('click', () => {
-  settingsPanel.openPanel();
+btnSettings.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (settingsPanel) {
+    settingsPanel.openSettingsPanel();
+  }
+  menuDropdown.style.display = 'none';
 });
 
 btnRestart.addEventListener('click', () => {
@@ -345,7 +362,7 @@ function initVoiceInput() {
     if (settings.apiKey) {
       await getResponse(transcript);
     } else {
-      showError('No API key configured. Go to Settings to add one.');
+      showError('No API key. Open Settings to add one.');
       updateStatus('Ready');
     }
   };
@@ -374,7 +391,6 @@ async function getResponse(userMessage) {
   updateStatus('JARVIS: Processing...');
 
   try {
-    // Using OpenAI API as example
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -384,10 +400,10 @@ async function getResponse(userMessage) {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'You are JARVIS, a helpful AI assistant. Keep responses brief and concise.' },
+          { role: 'system', content: 'You are JARVIS, a helpful AI assistant. Keep responses brief and concise (under 30 words).' },
           { role: 'user', content: userMessage }
         ],
-        max_tokens: 100
+        max_tokens: 50
       })
     });
 
@@ -400,7 +416,7 @@ async function getResponse(userMessage) {
 
     updateStatus(`JARVIS: ${reply}`);
     
-    // Text to speech (optional)
+    // Text to speech
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(reply);
       speechSynthesis.speak(utterance);
@@ -413,7 +429,7 @@ async function getResponse(userMessage) {
 
   } catch (error) {
     console.error('API Error:', error);
-    showError('Failed to get response. Check API key.');
+    showError('API Error: Check your key.');
     updateStatus('Ready');
     isResponding = false;
   }
