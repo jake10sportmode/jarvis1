@@ -1,15 +1,17 @@
-// JARVIS - Voice AI Assistant with Settings
+// JARVIS - Voice AI Assistant with Settings (Google Gemini & OpenAI Support)
 const canvas = document.getElementById('orb-canvas');
 const ctx = canvas.getContext('2d');
 
 // Settings management
 const settings = {
   apiKey: localStorage.getItem('jarvis_api_key') || '',
+  apiProvider: localStorage.getItem('jarvis_api_provider') || 'gemini',
   language: localStorage.getItem('jarvis_language') || 'en-US',
 };
 
 function saveSettings() {
   localStorage.setItem('jarvis_api_key', settings.apiKey);
+  localStorage.setItem('jarvis_api_provider', settings.apiProvider);
   localStorage.setItem('jarvis_language', settings.language);
 }
 
@@ -74,14 +76,13 @@ function drawOrb() {
   ctx.arc(centerX, centerY, 150, 0, Math.PI * 2);
   ctx.fill();
 
-  // Inner core color changes based on state
   let coreColor;
   if (isResponding) {
-    coreColor = 'rgba(255, 165, 0, 0.8)'; // Orange when responding
+    coreColor = 'rgba(255, 165, 0, 0.8)';
   } else if (isListening) {
-    coreColor = 'rgba(0, 255, 100, 0.6)'; // Green when listening
+    coreColor = 'rgba(0, 255, 100, 0.6)';
   } else {
-    coreColor = 'rgba(0, 255, 255, 0.4)'; // Cyan when idle
+    coreColor = 'rgba(0, 255, 255, 0.4)';
   }
   
   ctx.fillStyle = coreColor;
@@ -89,7 +90,6 @@ function drawOrb() {
   ctx.arc(centerX, centerY, 40, 0, Math.PI * 2);
   ctx.fill();
 
-  // Outer rings
   let ringColor;
   if (isResponding) {
     ringColor = 'rgba(255, 165, 0, 0.3)';
@@ -136,7 +136,7 @@ const btnSettings = document.getElementById('btn-settings');
 const btnRestart = document.getElementById('btn-restart');
 const btnFixSelf = document.getElementById('btn-fix-self');
 
-// Create settings panel (dynamic)
+// Create settings panel
 let settingsPanel = null;
 
 function createSettingsPanel() {
@@ -163,8 +163,26 @@ function createSettingsPanel() {
       <h2 style="color: rgba(0, 255, 255, 0.9); margin: 0 0 30px 0; font-size: 20px; letter-spacing: 3px;">⚙️ SETTINGS</h2>
       
       <div style="margin-bottom: 25px;">
+        <label style="display: block; color: rgba(0, 255, 255, 0.7); margin-bottom: 10px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">AI PROVIDER</label>
+        <select id="provider-select" style="
+          width: 100%;
+          padding: 12px;
+          background: rgba(0, 255, 255, 0.08);
+          border: 1px solid rgba(0, 255, 255, 0.25);
+          border-radius: 8px;
+          color: rgba(0, 255, 255, 0.95);
+          font-size: 14px;
+          box-sizing: border-box;
+          cursor: pointer;
+        ">
+          <option value="gemini">Google Gemini</option>
+          <option value="openai">OpenAI (ChatGPT)</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 25px;">
         <label style="display: block; color: rgba(0, 255, 255, 0.7); margin-bottom: 10px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">API KEY</label>
-        <input type="password" id="api-key-input" placeholder="Enter your OpenAI API key..." style="
+        <input type="password" id="api-key-input" placeholder="Enter your API key..." style="
           width: 100%;
           padding: 12px;
           background: rgba(0, 255, 255, 0.08);
@@ -175,8 +193,8 @@ function createSettingsPanel() {
           box-sizing: border-box;
           font-family: monospace;
         " value="${settings.apiKey}">
-        <small style="color: rgba(0, 255, 255, 0.5); display: block; margin-top: 8px; line-height: 1.4;">
-          Get your API key from openai.com<br/>This enables JARVIS to understand and respond to your voice.
+        <small style="color: rgba(0, 255, 255, 0.5); display: block; margin-top: 8px; line-height: 1.4;" id="provider-hint">
+          Get your Google Gemini API key from: makersuite.google.com/app/apikey
         </small>
       </div>
 
@@ -238,26 +256,42 @@ function createSettingsPanel() {
         font-size: 12px;
         line-height: 1.8;
       ">
-        <p style="margin: 0 0 12px 0;"><strong style="color: rgba(0, 255, 255, 0.7);">HOW IT WORKS</strong></p>
-        <p style="margin: 0 0 8px 0;">1. Enter your OpenAI API key</p>
-        <p style="margin: 0 0 8px 0;">2. Click the glowing orb to speak</p>
-        <p style="margin: 0;">3. JARVIS will respond to you</p>
+        <p style="margin: 0 0 12px 0;"><strong style="color: rgba(0, 255, 255, 0.7);">HOW TO USE</strong></p>
+        <p style="margin: 0 0 8px 0;">1. Choose your AI provider</p>
+        <p style="margin: 0 0 8px 0;">2. Paste your API key</p>
+        <p style="margin: 0 0 8px 0;">3. Click SAVE</p>
+        <p style="margin: 0;">4. Click orb to speak</p>
       </div>
     </div>
   `;
 
   document.body.appendChild(panel);
 
+  const providerSelect = document.getElementById('provider-select');
   const apiKeyInput = document.getElementById('api-key-input');
   const languageSelect = document.getElementById('language-select');
+  const providerHint = document.getElementById('provider-hint');
   const saveBtn = document.getElementById('save-settings');
   const closeBtn = document.getElementById('close-settings');
 
-  // Set language select to saved value
+  providerSelect.value = settings.apiProvider;
   languageSelect.value = settings.language;
 
+  providerSelect.addEventListener('change', (e) => {
+    if (e.target.value === 'openai') {
+      providerHint.textContent = 'Get your OpenAI API key from: platform.openai.com/api-keys';
+    } else {
+      providerHint.textContent = 'Get your Google Gemini API key from: makersuite.google.com/app/apikey';
+    }
+  });
+
   saveBtn.addEventListener('click', () => {
+    if (!apiKeyInput.value.trim()) {
+      showError('Please enter an API key');
+      return;
+    }
     settings.apiKey = apiKeyInput.value;
+    settings.apiProvider = providerSelect.value;
     settings.language = languageSelect.value;
     saveSettings();
     updateStatus('Settings saved ✓');
@@ -278,7 +312,6 @@ function createSettingsPanel() {
   return { openSettingsPanel, closeSettingsPanel };
 }
 
-// Initialize settings panel after DOM is ready
 setTimeout(() => {
   settingsPanel = createSettingsPanel();
 }, 100);
@@ -294,7 +327,6 @@ function showError(text) {
   }, 5000);
 }
 
-// Event listeners
 btnMute.addEventListener('click', () => {
   isMuted = !isMuted;
   btnMute.style.opacity = isMuted ? '0.5' : '1';
@@ -358,11 +390,10 @@ function initVoiceInput() {
     isListening = false;
     updateStatus(`You: ${transcript}`);
     
-    // Call API if key is configured
     if (settings.apiKey) {
       await getResponse(transcript);
     } else {
-      showError('No API key. Open Settings to add one.');
+      showError('No API key. Click menu → Settings');
       updateStatus('Ready');
     }
   };
@@ -391,32 +422,62 @@ async function getResponse(userMessage) {
   updateStatus('JARVIS: Processing...');
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${settings.apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'You are JARVIS, a helpful AI assistant. Keep responses brief and concise (under 30 words).' },
-          { role: 'user', content: userMessage }
-        ],
-        max_tokens: 50
-      })
-    });
+    let reply = '';
 
-    if (!response.ok) {
-      throw new Error('API request failed');
+    if (settings.apiProvider === 'gemini') {
+      // Google Gemini API
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${settings.apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: userMessage
+            }]
+          }],
+          generationConfig: {
+            maxOutputTokens: 60,
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      reply = data.candidates[0].content.parts[0].text;
+
+    } else if (settings.apiProvider === 'openai') {
+      // OpenAI API
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${settings.apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are JARVIS, a helpful AI assistant. Keep responses brief (under 30 words).' },
+            { role: 'user', content: userMessage }
+          ],
+          max_tokens: 50
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      reply = data.choices[0].message.content;
     }
-
-    const data = await response.json();
-    const reply = data.choices[0].message.content;
 
     updateStatus(`JARVIS: ${reply}`);
     
-    // Text to speech
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(reply);
       speechSynthesis.speak(utterance);
@@ -429,13 +490,12 @@ async function getResponse(userMessage) {
 
   } catch (error) {
     console.error('API Error:', error);
-    showError('API Error: Check your key.');
+    showError(`Error: ${error.message}`);
     updateStatus('Ready');
     isResponding = false;
   }
 }
 
-// Initialize
 const recognition = initVoiceInput();
 updateStatus('Ready');
 drawOrb();
