@@ -1,0 +1,134 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #0a0e27;
+  color: #ffffff;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#orb-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+#menu-dropdown {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  z-index: 11;
+  min-width: 150px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+#menu-dropdown button {
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  border: none;
+  padding: 12px 16px;
+  text-align: left;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#menu-dropdown button:last-child {
+  border-bottom: none;
+}
+
+#menu-dropdown button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#status-text {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  z-index: 5;
+}
+
+#jarvis-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 4px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+#error-text {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #ff6b6b;
+  font-size: 14px;
+  z-index: 5;
+  max-width: 300px;
+}
+
+.listening {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
